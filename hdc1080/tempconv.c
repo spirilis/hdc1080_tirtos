@@ -115,7 +115,7 @@ static const LogLUT_t LUT_ln_Q16[] = {
     {64880, -658}
 };
 
-int32_t HDC1080_temp_C(HDC1080_Handle h)
+int32_t HDC1080_temp_C_Q16(HDC1080_Handle h)
 {
 	// temp is the original value from the chip, unmodified
 
@@ -123,12 +123,16 @@ int32_t HDC1080_temp_C(HDC1080_Handle h)
 	// temp is a fractional unsigned value in Q0.16, a number between 0.0 and 165.0, equalling measured degrees Celsius plus 40.
 	wTemp *= 165;
 	wTemp -= 40 * 65536;  // Convert to signed degrees C in Q15.16 format
-	wTemp /= 65536; // Convert to whole degrees C
 
-	return wTemp;
+	return wTemp;  // Value contains fractions in lower 16 bits.
 }
 
-int32_t HDC1080_temp_F(HDC1080_Handle h)
+int32_t HDC1080_temp_C(HDC1080_Handle h)
+{
+	return HDC1080_temp_C_Q16(h) / 65536;
+}
+
+int32_t HDC1080_temp_F_Q16(HDC1080_Handle h)
 {
 	// temp is the original value from the chip, unmodified
 	int32_t wTemp = (int32_t)h->temp;
@@ -137,9 +141,18 @@ int32_t HDC1080_temp_F(HDC1080_Handle h)
 	wTemp *= 9;
 	wTemp /= 5;
 	wTemp += 32 * 65536; // Convert to degrees F in Q15.16 format
-	wTemp /= 65536; // Convert to whole degrees F
 
-	return wTemp;
+	return wTemp;  // Value contains fractions in lower 16 bits.
+}
+
+int32_t HDC1080_temp_F(HDC1080_Handle h)
+{
+	return HDC1080_temp_F_Q16(h) / 65536;
+}
+
+int32_t HDC1080_relative_humidity_Q16(HDC1080_Handle h)
+{
+	return ((int32_t)h->humidity * 100);
 }
 
 int32_t HDC1080_relative_humidity(HDC1080_Handle h)
@@ -147,7 +160,7 @@ int32_t HDC1080_relative_humidity(HDC1080_Handle h)
 	return ((int32_t)h->humidity * 100) / 65536;
 }
 
-int32_t HDC1080_dewpoint_C(HDC1080_Handle h)
+int32_t HDC1080_dewpoint_C_Q16(HDC1080_Handle h)
 {
 	// Temp, relative humidity assumed to be in chip-unmodified format
 
@@ -173,12 +186,16 @@ int32_t HDC1080_dewpoint_C(HDC1080_Handle h)
 	// Dewpoint formula derived from http://andrew.rsmas.miami.edu/bmcnoldy/Humidity.html with floating point values converted to fixed-point Q47.16
 	// 64-bit precision is required for some of the multiplications here in order to retain decent precision...
 	int64_t dewpt = 15927869 * (lnRh + ((1155072 * wTemp) / (15927869 + wTemp))) / (1155072 - lnRh - ((1155072 * wTemp) / (15927869 + wTemp)));
-	dewpt /= 65536;
 
-	return (int32_t)dewpt;
+	return (int32_t)dewpt;  // Value contains fractions in lower 16 bits.
 }
 
-int32_t HDC1080_dewpoint_F(HDC1080_Handle h)
+int32_t HDC1080_dewpoint_C(HDC1080_Handle h)
+{
+	return HDC1080_dewpoint_C_Q16(h) / 65536;
+}
+
+int32_t HDC1080_dewpoint_F_Q16(HDC1080_Handle h)
 {
 	// Temp, relative humidity assumed to be in chip-unmodified format
 
@@ -209,7 +226,11 @@ int32_t HDC1080_dewpoint_F(HDC1080_Handle h)
 	dewpt *= 9;
 	dewpt /= 5;
 	dewpt += 32 * 65536;
-	dewpt /= 65536;
 
-	return (int32_t)dewpt;
+	return (int32_t)dewpt;  // Value contains fractions in lower 16 bits.
+}
+
+int32_t HDC1080_dewpoint_F(HDC1080_Handle h)
+{
+	return HDC1080_dewpoint_F_Q16(h) / 65536;
 }
