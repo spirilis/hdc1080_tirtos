@@ -58,6 +58,7 @@ Bool HDC1080_quickopen(I2C_Handle i2cbus)
 	txn.readCount = 0;
 	txn.writeBuf = rd;
 	txn.writeCount = 3;
+	txn.slaveAddress = HDC1080_SLAVE_ADDR;
 	rd[0] = 0x02;  // Register 0x02, CONFIGURATION
 	rd[1] = configurationValue >> 8;
 	rd[2] = configurationValue & 0xFF;

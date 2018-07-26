@@ -7,6 +7,9 @@
 
 #include <xdc/std.h>
 #include <stdint.h>
+#include <ti/sysbios/BIOS.h>
+#include <ti/drivers/I2C.h>
+
 
 #define HDC1080_SLAVE_ADDR 0x40
 
